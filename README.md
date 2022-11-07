@@ -1,4 +1,4 @@
-# ufabc-sistema-matricula-server
+# Repositório Backend: ufabc-sistema-matricula-server
 
 Projeto desenvolvido para aprovação na matéria de Laboratório de Engenharia de Software, na UFABC, lecionada pelo professor PAULO ROBERTO MIRANDA MEIRELLES.
 
