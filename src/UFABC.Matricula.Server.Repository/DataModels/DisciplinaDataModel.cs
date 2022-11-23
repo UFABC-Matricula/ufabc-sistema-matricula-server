@@ -30,7 +30,7 @@ namespace Mvc_MongoDB.Models
         [Display(Name = "I")]
         private int EstudoIndividual {get; set;}
 
-        [Required]
+        /*[Required]
         [Display(Name = "Recomendação")]
         private string[] Recomendacao {get; set;}
 
