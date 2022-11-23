@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace UFABC.Matricula.Server.Api
 {
@@ -31,8 +26,11 @@ namespace UFABC.Matricula.Server.Api
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddMvcCore().AddApiExplorer();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddControllers();
+
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,12 +45,23 @@ namespace UFABC.Matricula.Server.Api
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-
+            app.UseRouting();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseMvc();
+            app.UseSwagger();
+            app.UseSwaggerUI(
+                opt =>
+                {
+                    opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Sistema Matricula API V1");
+                }
+            );
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
