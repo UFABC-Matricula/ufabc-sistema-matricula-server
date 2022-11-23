@@ -13,8 +13,8 @@ namespace Mvc_MongoDB.Models
         //DataHora
 
         [Required]
-        [Display(Name = "Código")]
-        private string Codigo {get; set;}
+        [Display(Name = "Código da Disciplina")]
+        private string CodigoDisciplina {get; set;}
 
         [Required]
         [Display(Name = "RA")]
