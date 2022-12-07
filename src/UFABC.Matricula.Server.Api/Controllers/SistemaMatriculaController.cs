@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.Swagger;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using UFABC.Matricula.Server.Api.Models;
@@ -29,28 +31,75 @@ namespace UFABC.Matricula.Server.Api.Controllers
                 TurnoAluno = Models.Enums.TurnoEnum.Noturno,
                 CreditosTP = 16,
                 CreditosTPI = 40,
-                Turmas = new System.Collections.Generic.List<TurmaModel>()
+                Turmas = gerarTurma(4, null)
             };
 
-            for (int i = 1; i < 4; i++)
+            var actionResult = default(IActionResult);
+            actionResult = new OkObjectResult(response);
+
+            return actionResult;
+        }
+
+        [HttpPost("/salvar-solicitacao")]
+        public async Task<IActionResult> SalvarSolicitacao(
+            [FromBody] SalvarSolicitacaoPayload payload)
+        {
+            var useCaseInput = new SalvarSolicitacaoUseCaseInput{
+                DataSolicitacao = System.DateTime.Now,
+                RA = payload.RA, 
+                TurmasSelecionadas = payload.IdsTurmasSelecionadas
+            };
+
+            var useCase = new SalvarSolicitacaoUseCase();
+
+            var useCaseResult = await useCase.SalvarSolicitacao(useCaseInput);
+
+            var actionResult = default(IActionResult);
+            actionResult = new OkObjectResult(useCaseResult);
+
+            return actionResult;
+        }
+
+        [HttpGet("/listar-disciplinas")]
+        [ProducesResponseType(typeof(System.Collections.Generic.List<TurmaModel>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> ListarDisciplinas(
+            [FromQuery] string ra, [FromQuery] string tipo)
+        {
+            var response = gerarTurma(10, tipo);            
+
+            var actionResult = default(IActionResult);
+            actionResult = new OkObjectResult(response);
+
+            return actionResult;
+        }
+
+
+        private List<TurmaModel> gerarTurma(int qtd, string tipo) {
+
+            var turmas = new List<TurmaModel>();
+            
+            tipo = tipo != null ? " - " + tipo : tipo;
+            
+            for (int i = 1; i < qtd; i++)
             {
                 var turma = new TurmaModel
                 {
                     Id = Guid.NewGuid().ToString(),
                     Codigo = $"ABCD-{i}",
-                    NomeDisciplina = $"Disciplina {i}",
+                    NomeDisciplina = $"Disciplina {i}{tipo}",
                     NomeTurma = $"A{i}",
                     Campus = Models.Enums.CampusEnum.SantoAndre,
                     Turno = Models.Enums.TurnoEnum.Noturno,
                     CreditosT = i,
-                    CreditosP = 4-i,
-                    CreditosI = i*2,
+                    CreditosP = 4 - i,
+                    CreditosI = i * 2,
                     NomeDocenteTeoria = $"Docente Teoria {i}",
                     NomeDocentePratica = $"Docente Pratica {i}",
-                    Horarios = new System.Collections.Generic.List<HorarioModel>()
+                    Horarios = new List<HorarioModel>()
                 };
 
-                var horario1 = new HorarioModel {
+                var horario1 = new HorarioModel
+                {
                     TipoAula = Models.Enums.TipoAulaEnum.Pratica,
                     PeriodicidadeAula = Models.Enums.PeriodicidadeAulaEnum.Semanal,
                     HoraInicio = 19,
@@ -88,33 +137,10 @@ namespace UFABC.Matricula.Server.Api.Controllers
                 turma.Horarios.Add(horario1);
                 turma.Horarios.Add(horario2);
 
-                response.Turmas.Add(turma);
+                turmas.Add(turma);
             }
 
-            var actionResult = default(IActionResult);
-            actionResult = new OkObjectResult(response);
-
-            return actionResult;
-        }
-
-        [HttpPost("/salvar-solicitacao")]
-        public async Task<IActionResult> SalvarSolicitacao(
-            [FromBody] SalvarSolicitacaoPayload payload)
-        {
-            var useCaseInput = new SalvarSolicitacaoUseCaseInput{
-                DataSolicitacao = System.DateTime.Now,
-                RA = payload.RA, 
-                TurmasSelecionadas = payload.IdsTurmasSelecionadas
-            };
-
-            var useCase = new SalvarSolicitacaoUseCase();
-
-            var useCaseResult = await useCase.SalvarSolicitacao(useCaseInput);
-
-            var actionResult = default(IActionResult);
-            actionResult = new OkObjectResult(useCaseResult);
-
-            return actionResult;
+            return turmas;
         }
     }
 }
